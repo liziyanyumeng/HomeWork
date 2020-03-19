@@ -1,6 +1,5 @@
 package com.example.zuoye20200319;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,7 +7,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.zuoye20200319.bean.LoginBean;
@@ -16,22 +14,23 @@ import com.example.zuoye20200319.bean.ShowBean;
 import com.example.zuoye20200319.util.ApiService;
 import com.example.zuoye20200319.util.RetrofitUtil;
 
-import java.util.ArrayList;
-
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import me.iwf.photopicker.PhotoPicker;
 
 public class MainActivity extends AppCompatActivity {
-
+    private TextView mTvResult;
+    private Button mBtnGet, mBtnPost, mBtnUp;
+    private TextView tvShow;
+    private EditText tvResult;
+    private EditText tvPwd;
     private Button btnGet;
     private Button btnPost;
     private Button btnUpImg;
-    private EditText tvPwd;
-    private EditText tvResult;
+    private String phone;
+    private String pwcd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,16 +40,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        tvPwd = (EditText) findViewById(R.id.tv_pwd);
+        tvShow = (TextView) findViewById(R.id.tv_show);
         tvResult = (EditText) findViewById(R.id.tv_result);
+        tvPwd = (EditText) findViewById(R.id.tv_pwd);
         btnGet = (Button) findViewById(R.id.btn_get);
         btnPost = (Button) findViewById(R.id.btn_post);
         btnUpImg = (Button) findViewById(R.id.btn_up_img);
-        clickget();
+        jisuan();
     }
 
-    //设置点击事件
-    public void clickget() {
+    public void jisuan(){
         btnGet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,14 +76,15 @@ public class MainActivity extends AppCompatActivity {
                         });
             }
         });
+
         btnPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final RetrofitUtil instance = RetrofitUtil.getInstance();
                 final ApiService apiService = instance.apiService();
-                final String phone = tvResult.getText().toString();
-                final String pwd = tvPwd.getText().toString();
-                final Observable<LoginBean> login = apiService.login(phone, pwd);
+                phone = tvResult.getText().toString();
+                pwcd = tvPwd.getText().toString();
+                final Observable<LoginBean> login = apiService.login(phone, pwcd);
                 login.subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Observer<LoginBean>() {
@@ -105,25 +105,5 @@ public class MainActivity extends AppCompatActivity {
                         });
             }
         });
-        btnUpImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PhotoPicker.builder()
-                        .setPhotoCount(9)
-                        .setShowCamera(true)
-                        .setShowGif(true)
-                        .setPreviewEnabled(false);
-            }
-        });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == PhotoPicker.REQUEST_CODE) {
-            if (data != null) {
-                ArrayList<String> photos = data.getStringArrayListExtra(PhotoPicker.KEY_SELECTED_PHOTOS);
-            }
-        }
     }
 }
